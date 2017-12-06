@@ -1,0 +1,28 @@
+{
+  "name": "@thenewvu/reduckless",
+  "version": "1.0.0",
+  "description": "An attemp to reduce redux boilerplate",
+  "main": "dist.js",
+  "dependencies": {
+    "@thenewvu/objutil": "github:thenewvu/objutil#master"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "jest": "^21.2.1"
+  },
+  "scripts": {
+    "test": "jest --watchAll",
+    "build": "babel main.js --out-file dist.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thenewvu/reduckless.git"
+  },
+  "author": "Vu Le",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thenewvu/reduckless/issues"
+  },
+  "homepage": "https://github.com/thenewvu/reduckless#readme"
+}

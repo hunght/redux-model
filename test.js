@@ -6,7 +6,7 @@ describe('reduckless', () => {
   test('reduce', () => {
     const prefix = 'prefix'
     const origin = 'origin'
-    const handle = {
+    const action = {
       test: {
         actionType: () => 'change',
         prevState: state => state + '+change',
@@ -14,7 +14,7 @@ describe('reduckless', () => {
       }
     }
 
-    const {reduce} = reduckless({prefix, origin, handle})
+    const {reduce} = reduckless({prefix, origin, action})
 
     expect(reduce(null, {type: `${prefix}/test.origin`})).toEqual(origin)
     expect(reduce(null, {type: `${prefix}/test.actionType`})).toEqual('change')
@@ -25,7 +25,7 @@ describe('reduckless', () => {
   test('on', () => {
     const prefix = 'prefix'
     const origin = 'origin'
-    const handle = {
+    const action = {
       x: {
         y: () => {},
         z: () => {}
@@ -38,7 +38,7 @@ describe('reduckless', () => {
       i: () => {}
     }
 
-    const {on} = reduckless({prefix, origin, handle})
+    const {on} = reduckless({prefix, origin, action})
 
     expect(on).toHaveProperty('x.y')
     expect(on.x.y).toBeInstanceOf(Function)
@@ -61,7 +61,10 @@ describe('reduckless', () => {
         cur: ({x}) => x,
         prev: ({x}) => x - 1
       },
-      y: ({y}) => y
+      y: ({y}) => y,
+      z: {
+        add: ({z}, n) => z + n
+      }
     }
 
     const {get} = reduckless({prefix, getter})
@@ -81,5 +84,9 @@ describe('reduckless', () => {
     expect(get).toHaveProperty('y')
     expect(get.y).toBeInstanceOf(Function)
     expect(get.y({[prefix]: {y: 12}})).toEqual(12)
+
+    expect(get).toHaveProperty('z.add')
+    expect(get.z.add).toBeInstanceOf(Function)
+    expect(get.z.add({[prefix]: {z: 12}}, 12)).toEqual(24)
   })
 })

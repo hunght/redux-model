@@ -1,16 +1,16 @@
 import {obtain, inset, walk} from '@thenewvu/objutil'
 
 export default
-function reduckless ({prefix, origin = {}, getter, handle = {}}) {
+function reduckless ({prefix, origin = {}, getter, action = {}}) {
   if (typeof prefix !== 'string') throw new Error(`Require "prefix" string but got ${prefix}`)
-  if (typeof handle !== 'object') throw new Error(`Require "handle" object but got ${handle}`)
+  if (typeof action !== 'object') throw new Error(`Require "action" object but got ${action}`)
 
   const reduce = (state, {type, payload}) => {
     state = state || origin
 
     const [handlePrefix, handlePath] = type.split('/')
     if (handlePrefix === prefix) {
-      const h = obtain(handle, handlePath)
+      const h = obtain(action, handlePath)
       if (typeof h === 'function') {
         return h(state, payload)
       }
@@ -20,7 +20,7 @@ function reduckless ({prefix, origin = {}, getter, handle = {}}) {
   }
 
   const on = {}
-  walk(handle, (node, path) => {
+  walk(action, (node, path) => {
     if (typeof node === 'function') {
       inset(on, path, payload => ({type: `${prefix}/${path}`, payload}))
     } else if (!obtain(on, path)) {
@@ -31,7 +31,7 @@ function reduckless ({prefix, origin = {}, getter, handle = {}}) {
   const get = {}
   walk(getter, (node, path) => {
     if (typeof node === 'function') {
-      inset(get, path, state => node(state[prefix]))
+      inset(get, path, (state, ...args) => node(state[prefix], ...args))
     } else if (!obtain(get, path)) {
       inset(get, path, {})
     }

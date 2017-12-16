@@ -1,16 +1,17 @@
-import {obtain, inset, walk} from '@thenewvu/objutil'
+import {get, inset, walk} from '@thenewvu/objutil'
+import {connect as _connect} from 'react-redux'
 
-export default
-function reduckless ({prefix, origin = {}, getter, action = {}}) {
-  if (typeof prefix !== 'string') throw new Error(`Require "prefix" string but got ${prefix}`)
-  if (typeof action !== 'object') throw new Error(`Require "action" object but got ${action}`)
+export const modelize = (model) => {
+  if (typeof model !== 'object') throw new Error(`Require "model" object but got ${model}`)
+  if (typeof model.prefix !== 'string') throw new Error(`Require "prefix" string but got ${model.prefix}`)
+  if (typeof model.action !== 'object') throw new Error(`Require "action" object but got ${model.action}`)
 
   const reduce = (state, {type, payload}) => {
-    state = state || origin
+    state = state || model.origin
 
     const [handlePrefix, handlePath] = type.split('/')
-    if (handlePrefix === prefix) {
-      const h = obtain(action, handlePath)
+    if (handlePrefix === model.prefix) {
+      const h = get(model.action, handlePath)
       if (typeof h === 'function') {
         return h(state, payload)
       }
@@ -19,23 +20,29 @@ function reduckless ({prefix, origin = {}, getter, action = {}}) {
     return state
   }
 
-  const on = {}
-  walk(action, (node, path) => {
+  const action = {}
+  walk(model.action, (node, path) => {
     if (typeof node === 'function') {
-      inset(on, path, payload => ({type: `${prefix}/${path}`, payload}))
-    } else if (!obtain(on, path)) {
-      inset(on, path, {})
+      inset(action, path, payload => ({type: `${model.prefix}/${path}`, payload}))
+    } else if (!get(action, path)) {
+      inset(action, path, {})
     }
   })
 
-  const get = {}
-  walk(getter, (node, path) => {
+  const getter = {}
+  walk(model.getter, (node, path) => {
     if (typeof node === 'function') {
-      inset(get, path, (state, ...args) => node(state[prefix], ...args))
-    } else if (!obtain(get, path)) {
-      inset(get, path, {})
+      inset(getter, path, (state, ...args) => node(state[model.prefix], ...args))
+    } else if (!get(getter, path)) {
+      inset(getter, path, {})
     }
   })
 
-  return {reduce, get, on}
+  return {reduce, getter, action}
+}
+
+export const connect = (mapGetter, mapAction, Component) => (getter, action) => {
+  if (typeof getter !== 'object') throw new Error(`Require "getter" object but got ${getter}`)
+  if (typeof action !== 'object') throw new Error(`Require "action" object but got ${action}`)
+  return _connect(mapGetter(getter), mapAction(action))(Component)
 }

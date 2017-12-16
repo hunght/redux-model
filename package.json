@@ -1,7 +1,7 @@
 {
-  "name": "@thenewvu/reduckless",
+  "name": "@thenewvu/redux-model",
   "version": "1.0.0",
-  "description": "An attemp to reduce redux boilerplate",
+  "description": "A redux model concept and philosophy.",
   "main": "dist.js",
   "dependencies": {
     "@thenewvu/objutil": "github:thenewvu/objutil#master"
@@ -9,7 +9,10 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "jest": "^21.2.1"
+    "jest": "^21.2.1",
+    "react": "^16.2.0",
+    "react-redux": "^5.0.6",
+    "redux": "^3.7.2"
   },
   "scripts": {
     "test": "jest --watchAll",
@@ -24,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/thenewvu/reduckless/issues"
   },
-  "homepage": "https://github.com/thenewvu/reduckless#readme"
+  "homepage": "https://github.com/thenewvu/reduckless#readme",
+  "peerDependencies": {
+    "react-redux": "^5.0.6"
+  }
 }

@@ -145,8 +145,8 @@ var ModelProvider = exports.ModelProvider = function (_Component2) {
   }
 
   _createClass(ModelProvider, [{
-    key: 'getChildContact',
-    value: function getChildContact() {
+    key: 'getChildContext',
+    value: function getChildContext() {
       return {
         getter: this.props.getter,
         action: this.props.action

@@ -81,7 +81,7 @@ export const combineModels = models => {
 }
 
 export class ModelProvider extends Component {
-  getChildContact () {
+  getChildContext () {
     return {
       getter: this.props.getter,
       action: this.props.action

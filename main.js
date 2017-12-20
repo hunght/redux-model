@@ -55,19 +55,19 @@ export const createModel = model => {
   return {reduce, getter, action}
 }
 
-export const createModelView = (mapGetter, mapAction) => view => {
-  const modelView = class extends Component {
+export const createModelView = (mapGetter, mapAction) => view => (
+  class extends Component {
+    static contextTypes = {
+      getter: PropTypes.object.isRequired,
+      action: PropTypes.object.isRequired
+    }
     render () {
       const getter = mapGetter(this.context.getter)
       const action = mapGetter(this.context.action)
       return connectStore(getter, action)(view)
     }
   }
-  modelView.contextTypes = {
-    getter: PropTypes.object.isRequired,
-    action: PropTypes.object.isRequired
-  }
-}
+)
 
 export const combineModels = models => {
   const combined = {getter: {}, action: {}, reduce: {}}
@@ -81,6 +81,10 @@ export const combineModels = models => {
 }
 
 export class ModelProvider extends Component {
+  static childContextTypes = {
+    getter: PropTypes.object.isRequired,
+    action: PropTypes.object.isRequired
+  }
   getChildContext () {
     return {
       getter: this.props.getter,
@@ -90,9 +94,4 @@ export class ModelProvider extends Component {
   render () {
     return this.props.children
   }
-}
-
-ModelProvider.childContextTypes = {
-  getter: PropTypes.object.isRequired,
-  action: PropTypes.object.isRequired
 }

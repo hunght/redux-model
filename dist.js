@@ -97,16 +97,18 @@ var createModel = exports.createModel = function createModel(model) {
 
 var createModelView = exports.createModelView = function createModelView(mapGetter, mapAction) {
   return function (view) {
-    var modelView = function (_Component) {
-      _inherits(modelView, _Component);
+    var _class, _temp;
 
-      function modelView() {
-        _classCallCheck(this, modelView);
+    return _temp = _class = function (_Component) {
+      _inherits(_class, _Component);
 
-        return _possibleConstructorReturn(this, (modelView.__proto__ || Object.getPrototypeOf(modelView)).apply(this, arguments));
+      function _class() {
+        _classCallCheck(this, _class);
+
+        return _possibleConstructorReturn(this, (_class.__proto__ || Object.getPrototypeOf(_class)).apply(this, arguments));
       }
 
-      _createClass(modelView, [{
+      _createClass(_class, [{
         key: 'render',
         value: function render() {
           var getter = mapGetter(this.context.getter);
@@ -115,12 +117,11 @@ var createModelView = exports.createModelView = function createModelView(mapGett
         }
       }]);
 
-      return modelView;
-    }(_react.Component);
-    modelView.contextTypes = {
+      return _class;
+    }(_react.Component), _class.contextTypes = {
       getter: _propTypes2.default.object.isRequired,
       action: _propTypes2.default.object.isRequired
-    };
+    }, _temp;
   };
 };
 

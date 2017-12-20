@@ -1,10 +1,19 @@
+import {Component} from 'react'
+import PropTypes from 'prop-types'
 import {get, inset, walk} from '@thenewvu/objutil'
-import {connect as _connect} from 'react-redux'
+import {combineReducers} from 'redux'
+import {connect as connectStore} from 'react-redux'
 
-export const modelize = (model) => {
-  if (typeof model !== 'object') throw new Error(`Require "model" object but got ${model}`)
-  if (typeof model.prefix !== 'string') throw new Error(`Require "prefix" string but got ${model.prefix}`)
-  if (typeof model.action !== 'object') throw new Error(`Require "action" object but got ${model.action}`)
+export const createModel = model => {
+  if (typeof model !== 'object') {
+    throw new Error(`Require "model" object but got ${model}`)
+  }
+  if (typeof model.prefix !== 'string') {
+    throw new Error(`Require "prefix" string but got ${model.prefix}`)
+  }
+  if (typeof model.action !== 'object') {
+    throw new Error(`Require "action" object but got ${model.action}`)
+  }
 
   const reduce = (state, {type, payload}) => {
     state = state || model.origin
@@ -23,7 +32,10 @@ export const modelize = (model) => {
   const action = {}
   walk(model.action, (node, path) => {
     if (typeof node === 'function') {
-      inset(action, path, payload => ({type: `${model.prefix}/${path}`, payload}))
+      inset(action, path, payload => ({
+        type: `${model.prefix}/${path}`,
+        payload
+      }))
     } else if (!get(action, path)) {
       inset(action, path, {})
     }
@@ -32,7 +44,9 @@ export const modelize = (model) => {
   const getter = {}
   walk(model.getter, (node, path) => {
     if (typeof node === 'function') {
-      inset(getter, path, (state, ...args) => node(state[model.prefix], ...args))
+      inset(getter, path, (state, ...args) => (
+        node(state[model.prefix], ...args)
+      ))
     } else if (!get(getter, path)) {
       inset(getter, path, {})
     }
@@ -41,8 +55,44 @@ export const modelize = (model) => {
   return {reduce, getter, action}
 }
 
-export const connect = (mapGetter, mapAction, Component) => (getter, action) => {
-  if (typeof getter !== 'object') throw new Error(`Require "getter" object but got ${getter}`)
-  if (typeof action !== 'object') throw new Error(`Require "action" object but got ${action}`)
-  return _connect(mapGetter(getter), mapAction(action))(Component)
+export const createModelView = (mapGetter, mapAction) => view => {
+  const modelView = class extends Component {
+    render () {
+      const getter = mapGetter(this.context.getter)
+      const action = mapGetter(this.context.action)
+      return connectStore(getter, action)(view)
+    }
+  }
+  modelView.contextTypes = {
+    getter: PropTypes.object.isRequired,
+    action: PropTypes.object.isRequired
+  }
+}
+
+export const combineModels = models => {
+  const combined = {getter: {}, action: {}, reduce: {}}
+  Object.keys(models).forEach(name => {
+    combined.getter[name] = models[name].getter
+    combined.action[name] = models[name].action
+    combined.reduce[name] = models[name].reduce
+  })
+  combined.reduce = combineReducers(combined.reduce)
+  return combined
+}
+
+export class ModelProvider extends Component {
+  getChildContact () {
+    return {
+      getter: this.props.getter,
+      action: this.props.action
+    }
+  }
+  render () {
+    return this.props.children
+  }
+}
+
+ModelProvider.childContextTypes = {
+  getter: PropTypes.object.isRequired,
+  action: PropTypes.object.isRequired
 }

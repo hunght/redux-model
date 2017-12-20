@@ -3,20 +3,44 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.connect = exports.modelize = undefined;
+exports.ModelProvider = exports.combineModels = exports.createModelView = exports.createModel = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var _react = require('react');
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 var _objutil = require('@thenewvu/objutil');
+
+var _redux = require('redux');
 
 var _reactRedux = require('react-redux');
 
-var modelize = exports.modelize = function modelize(model) {
-  if ((typeof model === 'undefined' ? 'undefined' : _typeof(model)) !== 'object') throw new Error('Require "model" object but got ' + model);
-  if (typeof model.prefix !== 'string') throw new Error('Require "prefix" string but got ' + model.prefix);
-  if (_typeof(model.action) !== 'object') throw new Error('Require "action" object but got ' + model.action);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var createModel = exports.createModel = function createModel(model) {
+  if ((typeof model === 'undefined' ? 'undefined' : _typeof(model)) !== 'object') {
+    throw new Error('Require "model" object but got ' + model);
+  }
+  if (typeof model.prefix !== 'string') {
+    throw new Error('Require "prefix" string but got ' + model.prefix);
+  }
+  if (_typeof(model.action) !== 'object') {
+    throw new Error('Require "action" object but got ' + model.action);
+  }
 
   var reduce = function reduce(state, _ref) {
     var type = _ref.type,
@@ -43,7 +67,10 @@ var modelize = exports.modelize = function modelize(model) {
   (0, _objutil.walk)(model.action, function (node, path) {
     if (typeof node === 'function') {
       (0, _objutil.inset)(action, path, function (payload) {
-        return { type: model.prefix + '/' + path, payload: payload };
+        return {
+          type: model.prefix + '/' + path,
+          payload: payload
+        };
       });
     } else if (!(0, _objutil.get)(action, path)) {
       (0, _objutil.inset)(action, path, {});
@@ -68,10 +95,74 @@ var modelize = exports.modelize = function modelize(model) {
   return { reduce: reduce, getter: getter, action: action };
 };
 
-var connect = exports.connect = function connect(mapGetter, mapAction, Component) {
-  return function (getter, action) {
-    if ((typeof getter === 'undefined' ? 'undefined' : _typeof(getter)) !== 'object') throw new Error('Require "getter" object but got ' + getter);
-    if ((typeof action === 'undefined' ? 'undefined' : _typeof(action)) !== 'object') throw new Error('Require "action" object but got ' + action);
-    return (0, _reactRedux.connect)(mapGetter(getter), mapAction(action))(Component);
+var createModelView = exports.createModelView = function createModelView(mapGetter, mapAction) {
+  return function (view) {
+    var modelView = function (_Component) {
+      _inherits(modelView, _Component);
+
+      function modelView() {
+        _classCallCheck(this, modelView);
+
+        return _possibleConstructorReturn(this, (modelView.__proto__ || Object.getPrototypeOf(modelView)).apply(this, arguments));
+      }
+
+      _createClass(modelView, [{
+        key: 'render',
+        value: function render() {
+          var getter = mapGetter(this.context.getter);
+          var action = mapGetter(this.context.action);
+          return (0, _reactRedux.connect)(getter, action)(view);
+        }
+      }]);
+
+      return modelView;
+    }(_react.Component);
+    modelView.contextTypes = {
+      getter: _propTypes2.default.object.isRequired,
+      action: _propTypes2.default.object.isRequired
+    };
   };
+};
+
+var combineModels = exports.combineModels = function combineModels(models) {
+  var combined = { getter: {}, action: {}, reduce: {} };
+  Object.keys(models).forEach(function (name) {
+    combined.getter[name] = models[name].getter;
+    combined.action[name] = models[name].action;
+    combined.reduce[name] = models[name].reduce;
+  });
+  combined.reduce = (0, _redux.combineReducers)(combined.reduce);
+  return combined;
+};
+
+var ModelProvider = exports.ModelProvider = function (_Component2) {
+  _inherits(ModelProvider, _Component2);
+
+  function ModelProvider() {
+    _classCallCheck(this, ModelProvider);
+
+    return _possibleConstructorReturn(this, (ModelProvider.__proto__ || Object.getPrototypeOf(ModelProvider)).apply(this, arguments));
+  }
+
+  _createClass(ModelProvider, [{
+    key: 'getChildContact',
+    value: function getChildContact() {
+      return {
+        getter: this.props.getter,
+        action: this.props.action
+      };
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return this.props.children;
+    }
+  }]);
+
+  return ModelProvider;
+}(_react.Component);
+
+ModelProvider.childContextTypes = {
+  getter: _propTypes2.default.object.isRequired,
+  action: _propTypes2.default.object.isRequired
 };

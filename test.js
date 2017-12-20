@@ -1,8 +1,8 @@
 /* global expect, describe, test */
 
-import {modelize} from './main'
+import {createModel} from './main'
 
-describe('modelize', () => {
+describe('createModel', () => {
   test('reduce', () => {
     const prefix = 'prefix'
     const origin = 'origin'
@@ -14,7 +14,7 @@ describe('modelize', () => {
       }
     }
 
-    const {reduce} = modelize({prefix, origin, action})
+    const {reduce} = createModel({prefix, origin, action})
 
     expect(reduce(null, {type: `${prefix}/test.origin`})).toEqual(origin)
     expect(reduce(null, {type: `${prefix}/test.actionType`})).toEqual('change')
@@ -24,7 +24,7 @@ describe('modelize', () => {
 
   test('action', () => {
     const prefix = 'prefix'
-    const {action} = modelize({
+    const {action} = createModel({
       prefix,
       origin: 'origin',
       action: {
@@ -56,7 +56,7 @@ describe('modelize', () => {
 
   test('getter', () => {
     const prefix = 'prefix'
-    const {getter} = modelize({
+    const {getter} = createModel({
       prefix,
       getter: {
         x: {

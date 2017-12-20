@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/thenewvu/reduckless#readme",
   "peerDependencies": {
-    "react-redux": "^5.0.6"
+    "react-redux": "5.x",
+    "redux": "3.x"
   }
 }

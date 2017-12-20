@@ -13,6 +13,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _react = require('react');
 
+var _react2 = _interopRequireDefault(_react);
+
 var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
@@ -112,8 +114,9 @@ var createModelView = exports.createModelView = function createModelView(mapGett
         key: 'render',
         value: function render() {
           var getter = mapGetter(this.context.getter);
-          var action = mapGetter(this.context.action);
-          return (0, _reactRedux.connect)(getter, action)(view);
+          var action = mapAction(this.context.action);
+          var ConnectedView = (0, _reactRedux.connect)(getter, action)(view);
+          return _react2.default.createElement(ConnectedView, this.props);
         }
       }]);
 

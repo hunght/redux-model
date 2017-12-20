@@ -1,4 +1,4 @@
-import {Component} from 'react'
+import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {get, inset, walk} from '@thenewvu/objutil'
 import {combineReducers} from 'redux'
@@ -63,8 +63,9 @@ export const createModelView = (mapGetter, mapAction) => view => (
     }
     render () {
       const getter = mapGetter(this.context.getter)
-      const action = mapGetter(this.context.action)
-      return connectStore(getter, action)(view)
+      const action = mapAction(this.context.action)
+      const ConnectedView = connectStore(getter, action)(view)
+      return <ConnectedView {...this.props} />
     }
   }
 )

@@ -113,8 +113,8 @@ var createModelView = exports.createModelView = function createModelView(mapGett
       _createClass(_class, [{
         key: 'render',
         value: function render() {
-          var getter = mapGetter(this.context.getter);
-          var action = mapAction(this.context.action);
+          var getter = mapGetter && mapGetter(this.context.getter);
+          var action = mapAction && mapAction(this.context.action);
           var ConnectedView = (0, _reactRedux.connect)(getter, action)(view);
           return _react2.default.createElement(ConnectedView, this.props);
         }

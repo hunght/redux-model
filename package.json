@@ -22,14 +22,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thenewvu/reduckless.git"
+    "url": "git+https://github.com/thenewvu/redux-model.git"
   },
   "author": "Vu Le",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thenewvu/reduckless/issues"
+    "url": "https://github.com/thenewvu/redux-model/issues"
   },
-  "homepage": "https://github.com/thenewvu/reduckless#readme",
+  "homepage": "https://github.com/thenewvu/redux-model#readme",
   "peerDependencies": {
     "react-redux": "5.x",
     "redux": "3.x"

@@ -62,8 +62,8 @@ export const createModelView = (mapGetter, mapAction) => view => (
       action: PropTypes.object.isRequired
     }
     render () {
-      const getter = mapGetter(this.context.getter)
-      const action = mapAction(this.context.action)
+      const getter = mapGetter && mapGetter(this.context.getter)
+      const action = mapAction && mapAction(this.context.action)
       const ConnectedView = connectStore(getter, action)(view)
       return <ConnectedView {...this.props} />
     }

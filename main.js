@@ -4,7 +4,7 @@ import {get, inset, walk} from '@thenewvu/objutil'
 import {combineReducers} from 'redux'
 import {connect as connectStore} from 'react-redux'
 
-export const createModel = model => {
+export const createModel = (model) => {
   if (typeof model !== 'object') {
     throw new Error(`Require "model" object but got ${model}`)
   }
@@ -32,7 +32,7 @@ export const createModel = model => {
   const action = {}
   walk(model.action, (node, path) => {
     if (typeof node === 'function') {
-      inset(action, path, payload => ({
+      inset(action, path, (payload) => ({
         type: `${model.prefix}/${path}`,
         payload
       }))
@@ -55,12 +55,13 @@ export const createModel = model => {
   return {reduce, getter, action}
 }
 
-export const createModelView = (mapGetter, mapAction) => view => (
-  class extends Component {
+export const createModelView = (mapGetter, mapAction) => (view) => (
+  class ModelView extends Component {
     static contextTypes = {
       getter: PropTypes.object.isRequired,
       action: PropTypes.object.isRequired
     }
+
     render () {
       const getter = mapGetter && mapGetter(this.context.getter)
       const action = mapAction && mapAction(this.context.action)
@@ -70,9 +71,9 @@ export const createModelView = (mapGetter, mapAction) => view => (
   }
 )
 
-export const combineModels = models => {
+export const combineModels = (models) => {
   const combined = {getter: {}, action: {}, reduce: {}}
-  Object.keys(models).forEach(name => {
+  Object.keys(models).forEach((name) => {
     combined.getter[name] = models[name].getter
     combined.action[name] = models[name].action
     combined.reduce[name] = models[name].reduce
@@ -86,12 +87,14 @@ export class ModelProvider extends Component {
     getter: PropTypes.object.isRequired,
     action: PropTypes.object.isRequired
   }
+
   getChildContext () {
     return {
       getter: this.props.getter,
       action: this.props.action
     }
   }
+
   render () {
     return this.props.children
   }

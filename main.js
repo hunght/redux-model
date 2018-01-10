@@ -52,7 +52,7 @@ export const createModel = (model) => {
     }
   })
 
-  return {reduce, getter, action}
+  return {prefix: model.prefix, reduce, getter, action}
 }
 
 export const createModelView = (mapGetter, mapAction) => (view) => (
@@ -73,10 +73,11 @@ export const createModelView = (mapGetter, mapAction) => (view) => (
 
 export const combineModels = (models) => {
   const combined = {getter: {}, action: {}, reduce: {}}
-  Object.keys(models).forEach((name) => {
-    combined.getter[name] = models[name].getter
-    combined.action[name] = models[name].action
-    combined.reduce[name] = models[name].reduce
+  Object.keys(models).forEach((id) => {
+    const {prefix, getter, action, reduce} = models[id]
+    combined.getter[prefix] = getter
+    combined.action[prefix] = action
+    combined.reduce[prefix] = reduce
   })
   combined.reduce = combineReducers(combined.reduce)
   return combined

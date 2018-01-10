@@ -94,7 +94,7 @@ var createModel = exports.createModel = function createModel(model) {
     }
   });
 
-  return { reduce: reduce, getter: getter, action: action };
+  return { prefix: model.prefix, reduce: reduce, getter: getter, action: action };
 };
 
 var createModelView = exports.createModelView = function createModelView(mapGetter, mapAction) {
@@ -130,10 +130,16 @@ var createModelView = exports.createModelView = function createModelView(mapGett
 
 var combineModels = exports.combineModels = function combineModels(models) {
   var combined = { getter: {}, action: {}, reduce: {} };
-  Object.keys(models).forEach(function (name) {
-    combined.getter[name] = models[name].getter;
-    combined.action[name] = models[name].action;
-    combined.reduce[name] = models[name].reduce;
+  Object.keys(models).forEach(function (id) {
+    var _models$id = models[id],
+        prefix = _models$id.prefix,
+        getter = _models$id.getter,
+        action = _models$id.action,
+        reduce = _models$id.reduce;
+
+    combined.getter[prefix] = getter;
+    combined.action[prefix] = action;
+    combined.reduce[prefix] = reduce;
   });
   combined.reduce = (0, _redux.combineReducers)(combined.reduce);
   return combined;

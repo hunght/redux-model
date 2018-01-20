@@ -19,8 +19,6 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _objutil = require('@thenewvu/objutil');
-
 var _redux = require('redux');
 
 var _reactRedux = require('react-redux');
@@ -32,6 +30,46 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var walk = function walk(obj, fn) {
+  var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+  if (!obj) return;
+
+  Object.keys(obj).forEach(function (key) {
+    var nextNode = obj[key];
+    var nextPath = path ? path + '.' + key : key;
+    fn(nextNode, nextPath);
+    walk(nextNode, fn, nextPath);
+  });
+};
+
+var get = function get(obj, at) {
+  if (!obj) return undefined;
+  if (!at) return obj;
+
+  var firstDot = at.indexOf('.');
+  if (firstDot === -1) return obj[at];
+
+  var firstKey = at.slice(0, firstDot);
+  var restPath = at.slice(firstDot + 1);
+  return get(obj[firstKey], restPath);
+};
+
+var set = function set(obj, at, val) {
+  if (!obj || !at) return;
+
+  var firstDot = at.indexOf('.');
+  if (firstDot === -1) {
+    obj[at] = val;
+  } else {
+    var firstKey = at.slice(0, firstDot);
+    var restPath = at.slice(firstDot + 1);
+    set(obj[firstKey], restPath, val);
+  }
+
+  return obj;
+};
 
 var createModel = exports.createModel = function createModel(model) {
   if ((typeof model === 'undefined' ? 'undefined' : _typeof(model)) !== 'object') {
@@ -56,7 +94,7 @@ var createModel = exports.createModel = function createModel(model) {
         handlePath = _type$split2[1];
 
     if (handlePrefix === model.prefix) {
-      var h = (0, _objutil.get)(model.action, handlePath);
+      var h = get(model.action, handlePath);
       if (typeof h === 'function') {
         return h(state, payload);
       }
@@ -66,31 +104,31 @@ var createModel = exports.createModel = function createModel(model) {
   };
 
   var action = {};
-  (0, _objutil.walk)(model.action, function (node, path) {
+  walk(model.action, function (node, path) {
     if (typeof node === 'function') {
-      (0, _objutil.inset)(action, path, function (payload) {
+      set(action, path, function (payload) {
         return {
           type: model.prefix + '/' + path,
           payload: payload
         };
       });
-    } else if (!(0, _objutil.get)(action, path)) {
-      (0, _objutil.inset)(action, path, {});
+    } else if (!get(action, path)) {
+      set(action, path, {});
     }
   });
 
   var getter = {};
-  (0, _objutil.walk)(model.getter, function (node, path) {
+  walk(model.getter, function (node, path) {
     if (typeof node === 'function') {
-      (0, _objutil.inset)(getter, path, function (state) {
+      set(getter, path, function (state) {
         for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
           args[_key - 1] = arguments[_key];
         }
 
         return node.apply(undefined, [state[model.prefix]].concat(args));
       });
-    } else if (!(0, _objutil.get)(getter, path)) {
-      (0, _objutil.inset)(getter, path, {});
+    } else if (!get(getter, path)) {
+      set(getter, path, {});
     }
   });
 

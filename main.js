@@ -1,8 +1,45 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {get, inset, walk} from '@thenewvu/objutil'
 import {combineReducers} from 'redux'
 import {connect as connectStore} from 'react-redux'
+
+const walk = (obj, fn, path = '') => {
+  if (!obj) return
+
+  Object.keys(obj).forEach((key) => {
+    const nextNode = obj[key]
+    const nextPath = path ? `${path}.${key}` : key
+    fn(nextNode, nextPath)
+    walk(nextNode, fn, nextPath)
+  })
+}
+
+const get = (obj, at) => {
+  if (!obj) return undefined
+  if (!at) return obj
+
+  const firstDot = at.indexOf('.')
+  if (firstDot === -1) return obj[at]
+
+  const firstKey = at.slice(0, firstDot)
+  const restPath = at.slice(firstDot + 1)
+  return get(obj[firstKey], restPath)
+}
+
+const set = (obj, at, val) => {
+  if (!obj || !at) return
+
+  const firstDot = at.indexOf('.')
+  if (firstDot === -1) {
+    obj[at] = val
+  } else {
+    const firstKey = at.slice(0, firstDot)
+    const restPath = at.slice(firstDot + 1)
+    set(obj[firstKey], restPath, val)
+  }
+
+  return obj
+}
 
 export const createModel = (model) => {
   if (typeof model !== 'object') {
@@ -32,23 +69,23 @@ export const createModel = (model) => {
   const action = {}
   walk(model.action, (node, path) => {
     if (typeof node === 'function') {
-      inset(action, path, (payload) => ({
+      set(action, path, (payload) => ({
         type: `${model.prefix}/${path}`,
         payload
       }))
     } else if (!get(action, path)) {
-      inset(action, path, {})
+      set(action, path, {})
     }
   })
 
   const getter = {}
   walk(model.getter, (node, path) => {
     if (typeof node === 'function') {
-      inset(getter, path, (state, ...args) => (
+      set(getter, path, (state, ...args) => (
         node(state[model.prefix], ...args)
       ))
     } else if (!get(getter, path)) {
-      inset(getter, path, {})
+      set(getter, path, {})
     }
   })
 

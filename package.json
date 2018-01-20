@@ -3,9 +3,6 @@
   "version": "2.0.0",
   "description": "A redux model concept and philosophy.",
   "main": "dist.js",
-  "dependencies": {
-    "@thenewvu/objutil": "github:thenewvu/objutil#master"
-  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",

@@ -137,23 +137,29 @@ var createModel = exports.createModel = function createModel(model) {
 
 var createModelView = exports.createModelView = function createModelView(mapGetter, mapAction) {
   return function (view) {
-    var _class, _temp;
+    var _class, _temp2;
 
-    return _temp = _class = function (_Component) {
+    return _temp2 = _class = function (_Component) {
       _inherits(ModelView, _Component);
 
       function ModelView() {
+        var _ref2;
+
+        var _temp, _this, _ret;
+
         _classCallCheck(this, ModelView);
 
-        return _possibleConstructorReturn(this, (ModelView.__proto__ || Object.getPrototypeOf(ModelView)).apply(this, arguments));
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref2 = ModelView.__proto__ || Object.getPrototypeOf(ModelView)).call.apply(_ref2, [this].concat(args))), _this), _this.ConnectedView = (0, _reactRedux.connect)(mapGetter && mapGetter(_this.context.getter), mapAction && mapAction(_this.context.action))(view), _temp), _possibleConstructorReturn(_this, _ret);
       }
 
       _createClass(ModelView, [{
         key: 'render',
         value: function render() {
-          var getter = mapGetter && mapGetter(this.context.getter);
-          var action = mapAction && mapAction(this.context.action);
-          var ConnectedView = (0, _reactRedux.connect)(getter, action)(view);
+          var ConnectedView = this.ConnectedView;
           return _react2.default.createElement(ConnectedView, this.props);
         }
       }]);
@@ -162,7 +168,7 @@ var createModelView = exports.createModelView = function createModelView(mapGett
     }(_react.Component), _class.contextTypes = {
       getter: _propTypes2.default.object.isRequired,
       action: _propTypes2.default.object.isRequired
-    }, _temp;
+    }, _temp2;
   };
 };
 
